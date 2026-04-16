@@ -1,0 +1,50 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Pathfinding
+{
+    public class AStar : Dijkstra
+    {
+        protected override bool RunAlgorithm(Node start, Node goal)
+        {
+            List<Node> unexplored = new List<Node>();
+            Node sNode = start;
+            Node eNode = goal;
+            SetUnexplored(unexplored);
+
+            sNode.PathWeight = 0;
+            while (unexplored.Count > 0)
+            {
+                //Sort unexplored list based on path weight
+                unexplored.Sort((a, b) => a.heuristicPathWeight.CompareTo(b.heuristicPathWeight));
+                Node current = unexplored[0];
+                unexplored.RemoveAt(0);
+
+                foreach (var neighbourNode in current.Neighbours)
+                {
+                    // Ensure that we haven't explored the neighbour
+                    if (!unexplored.Contains(neighbourNode)) continue;
+
+                    neighbourNode.SetHeuristic(eNode.transform.position);
+
+                    float neighbourWeight = Vector3.Distance(current.transform.position, neighbourNode.transform.position);
+                    foreach (Defense defense in GetAllDefensesAffectingPath(current, neighbourNode))
+                    {
+                        neighbourWeight += defense.GetWeightPenalty(current,neighbourNode);
+                    }
+
+                    neighbourWeight += current.PathWeight;
+
+                    if (neighbourWeight < neighbourNode.PathWeight)
+                    {
+                        neighbourNode.PathWeight = neighbourWeight;
+                        neighbourNode.PreviousNode = current;
+                    }
+                } // return foreach
+                if (current == eNode) return true;
+            } // end while
+
+            return false; // if we don't find the end node
+        }
+    }
+}

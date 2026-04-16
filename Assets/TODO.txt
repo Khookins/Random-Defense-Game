@@ -1,0 +1,12 @@
+- Towers:
+	- Prefab
+	- Check Range
+	- Check Path Progression
+	- Hitscan
+	- Upgrades
+- Base
+- Enemies
+	- Give Money
+	- Enemy Spawning
+- Traps
+- Levels > Waves > Placement time
