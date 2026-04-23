@@ -28,7 +28,7 @@ namespace Pathfinding
                     neighbourNode.SetHeuristic(eNode.transform.position);
 
                     float neighbourWeight = Vector3.Distance(current.transform.position, neighbourNode.transform.position);
-                    foreach (Defense defense in GetAllDefensesAffectingPath(current, neighbourNode))
+                    foreach (Defence defense in GetAllDefensesAffectingPath(current, neighbourNode))
                     {
                         neighbourWeight += defense.GetWeightPenalty(current,neighbourNode);
                     }

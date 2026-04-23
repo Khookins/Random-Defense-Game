@@ -2,7 +2,7 @@ using UnityEngine;
 using Pathfinding;
 using System;
 
-public class Tower : Defense
+public class Tower : Defence
 {
     [SerializeField] protected float AttackDamage = 0f;
     [SerializeField] protected float AttackInterval = 0f;
@@ -51,6 +51,12 @@ public class Tower : Defense
     {
         return baseWeightPenalty;
     }
+
+    public float GetRange()
+    {
+        return AttackRange;
+    }
+
     protected virtual bool EnemyInRange(Enemy enemy)
     {
         Vector2 center = new Vector2(transform.position.x, transform.position.z);

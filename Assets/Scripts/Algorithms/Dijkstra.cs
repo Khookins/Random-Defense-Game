@@ -6,7 +6,7 @@ namespace Pathfinding
     public class Dijkstra : MonoBehaviour
     {
         protected Node[] nodesInScene;
-        protected Defense[] defensesInScene;
+        protected Defence[] defensesInScene;
         public Node[] nodes
         {
             get
@@ -22,13 +22,13 @@ namespace Pathfinding
 
         public void GetAllDefenses()
         {
-            defensesInScene = FindObjectsByType<Defense>(FindObjectsSortMode.None);
+            defensesInScene = FindObjectsByType<Defence>(FindObjectsSortMode.None);
         }
 
-        public List<Defense> GetAllDefensesAffectingPath(Node a, Node b = null)
+        public List<Defence> GetAllDefensesAffectingPath(Node a, Node b = null)
         {
-            List<Defense> results = new List<Defense>();
-            foreach (Defense defense in defensesInScene)
+            List<Defence> results = new List<Defence>();
+            foreach (Defence defense in defensesInScene)
             {
                 if (defense.AffectsWeight(a, b))
                 {
