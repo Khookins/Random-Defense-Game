@@ -3,9 +3,8 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System.Linq;
 
-
+[SerializeField]
 public class Game : MonoBehaviour
 {
     // Singleton
@@ -61,14 +60,17 @@ public class Game : MonoBehaviour
         }
     }
 
-    private int CurrentRound = 1;
+    private int CurrentRound = 0;
     private int MaxRound = 0;
-    private float PlayerHealth = 50f;
+    private float PlayerHealth = 100f;
     private int PlayerMoney = 0;
 
     private void Awake()
     {
         Instance = this;
+        CurrentRound = 0;
+        PlayerHealth = 100f;
+        PlayerMoney = 0;
         MaxRound = roundData.waves.Count;
     }
 
@@ -109,8 +111,8 @@ public class Game : MonoBehaviour
 
     public void StartRound()
     {
-        gState = GameState.Engagement;
         CurrentRound++;
+        gState = GameState.Engagement;
         OnRoundStarted.Invoke();
     }
 

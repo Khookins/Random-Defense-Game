@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace Pathfinding
@@ -6,8 +7,10 @@ namespace Pathfinding
     [ExecuteInEditMode]
     public class Node : MonoBehaviour
     {
+        private Transform PathParent;
         public List<Node> Neighbours;
-
+        private GameObject pathPrefab;
+        private List<GameObject> generatedPaths;
         private float pathWeight;
 
         public float PathWeight
@@ -46,6 +49,17 @@ namespace Pathfinding
             previousNode = null;
         }
 
+        private void Awake()
+        {
+            pathPrefab = Resources.Load<GameObject>("Path");
+            PathParent = GameObject.Find("Paths").transform;
+        }
+
+        private void LateUpdate()
+        {
+            DrawPathsToNeighbors();
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
@@ -59,6 +73,29 @@ namespace Pathfinding
                 Vector3 right = Vector3.Cross(direction, Vector3.up).normalized * 0.03f;
 
                 Gizmos.DrawRay(transform.position + right, direction);
+            }
+        }
+
+        public void DrawPathsToNeighbors()
+        {
+            if (generatedPaths == null) return;
+            foreach (GameObject path in generatedPaths)
+            {
+                GameObject.DestroyImmediate(path);
+            }
+            generatedPaths.Clear();
+            foreach (var node in Neighbours)
+            {
+                if (node == null) continue;
+
+                Vector3 direction = node.transform.position - transform.position;
+                float length = direction.magnitude;
+                Vector3 midpoint = transform.position + direction * 0.5f;
+                Quaternion rotation = Quaternion.LookRotation(direction.normalized);
+
+                GameObject path = Instantiate(pathPrefab, midpoint + Vector3.down, rotation, PathParent);
+                generatedPaths.Add(path);
+                path.transform.localScale = new Vector3(path.transform.localScale.x, path.transform.localScale.y, length += 0.5f);
             }
         }
 

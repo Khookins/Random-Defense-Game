@@ -7,15 +7,15 @@ public class FollowPath : MonoBehaviour
 {
     public event Action<GameObject> OnGoalReached;
 
-    private Dijkstra pathFinder;
-    [SerializeField] private PathfindingAlgorithm algorithm = PathfindingAlgorithm.A_Star;
-    [SerializeField] private Node startNode;
-    [SerializeField] private Node goalNode;
-    private int currentNodeIndex = 0;
-    private List<Node> path;
-    bool destroying = false;
+    protected Dijkstra pathFinder;
+    [SerializeField] protected PathfindingAlgorithm algorithm = PathfindingAlgorithm.A_Star;
+    [SerializeField] protected Node startNode;
+    [SerializeField] protected Node goalNode;
+    protected int currentNodeIndex = 0;
+    protected List<Node> path;
+    private bool destroying = false;
 
-    public void SetPath(Node start, Node goal)
+    public virtual void SetPath(Node start, Node goal)
     {
         startNode = start;
         goalNode = goal;
@@ -38,7 +38,7 @@ public class FollowPath : MonoBehaviour
         pathFinder.DebugPath(path);
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (path == null || path.Count == 0 || destroying) return;
         if (currentNodeIndex < path.Count)

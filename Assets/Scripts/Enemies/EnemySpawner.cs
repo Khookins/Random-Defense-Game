@@ -1,7 +1,7 @@
 using Pathfinding;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -16,17 +16,12 @@ public class EnemySpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        Game.OnRoundStarted += HandleRoundStateChanged;
+        Game.OnRoundStarted += SpawnAllWaves;
     }
 
     private void OnDisable()
     {
-        Game.OnRoundStarted -= HandleRoundStateChanged;
-    }
-
-    private void HandleRoundStateChanged()
-    {
-        SpawnAllWaves();
+        Game.OnRoundStarted -= SpawnAllWaves;
     }
 
     private void SpawnAllWaves()
@@ -65,19 +60,24 @@ public class EnemySpawner : MonoBehaviour
             yield return new WaitForSeconds(enemyEntry.groupDelay);
         }
         finishedSpawning = true;
-        CheckRoundComplete();
     }
 
     private void HandleEnemyDeath(Enemy enemy)
     {
+        FollowPath pathfinder = enemy.GetComponent<FollowPath>();
         activeEnemies.Remove(enemy.gameObject);
+        enemy.OnDied -= HandleEnemyDeath;
+        pathfinder.OnGoalReached -= HandleEnemyGoalReached;
         CheckRoundComplete();
     }
 
     private void HandleEnemyGoalReached(GameObject enemyObject)
     {
         Enemy enemy = enemyObject.GetComponent<Enemy>();
+        FollowPath pathfinder = enemy.GetComponent<FollowPath>();
         activeEnemies.Remove(enemyObject);
+        enemy.OnDied -= HandleEnemyDeath;
+        pathfinder.OnGoalReached -= HandleEnemyGoalReached;
         Game.Instance.TakePlayerDamage(enemy.GetHealth());
         CheckRoundComplete();
     }

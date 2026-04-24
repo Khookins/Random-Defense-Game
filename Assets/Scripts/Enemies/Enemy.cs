@@ -33,6 +33,8 @@ public abstract class Enemy : MonoBehaviour
 
     protected virtual void Die()
     {
+        if (this == null) return;
+        if (OnDied == null) return;
         OnDied.Invoke(this);
         GameObject.Destroy(gameObject);
     }
