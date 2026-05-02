@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace Pathfinding
@@ -27,6 +26,8 @@ namespace Pathfinding
             get => Heuristic + pathWeight;
         }
 
+        // Sets the heuristic of this specific node, which is a weight based of distance from the end node.
+        // This only applies to AStar
         public float SetHeuristic(Vector3 goal)
         {
             Heuristic = Vector3.Distance(transform.position, goal);
@@ -55,11 +56,6 @@ namespace Pathfinding
             PathParent = GameObject.Find("Paths").transform;
         }
 
-        private void LateUpdate()
-        {
-            DrawPathsToNeighbors();
-        }
-
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
@@ -76,9 +72,9 @@ namespace Pathfinding
             }
         }
 
+        // Creates a visual path to neighbor nodes. Is completely visual and has no real effect.
         public void DrawPathsToNeighbors()
         {
-            if (generatedPaths == null) return;
             foreach (GameObject path in generatedPaths)
             {
                 GameObject.DestroyImmediate(path);
@@ -101,6 +97,7 @@ namespace Pathfinding
 
         private void OnValidate() => ValidateNeighbours();
 
+        // When unity revalidates this node, checks if the neighbor nodes contain this node, and if it doesn't it adds them to their neighbor nodes.
         private void ValidateNeighbours()
         {
             foreach (var node in Neighbours)
@@ -114,6 +111,7 @@ namespace Pathfinding
             }
         }
 
+        // Similar to the validation function, when the node is destroyed it makes sure to delete itself from other nodes neighbor list.
         private void OnDestroy() => RemoveFromNeighbours();
         private void RemoveFromNeighbours()
         {

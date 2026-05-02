@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class TowerPlacer : MonoBehaviour
@@ -36,7 +35,7 @@ public class TowerPlacer : MonoBehaviour
 
     private void Update()
     {
-        if (Game.Instance.cState != Game.ControlState.Placing) return;
+        if (Game.Instance.cState != Game.ControlState.Placing) return;  
 
         if (GetMouseWorldPosition(out Vector3 mousePos))
         {
@@ -47,6 +46,7 @@ public class TowerPlacer : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            if (!isValidPlacement) return;
             PlaceTower();
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
@@ -69,6 +69,7 @@ public class TowerPlacer : MonoBehaviour
 
     private void HandleTowerPlacementStarted(Tower tower)
     {
+        if (PendingTowerPrefab) return;
         PendingTowerPrefab = tower;
         SpawnGhost();
     }
@@ -79,6 +80,7 @@ public class TowerPlacer : MonoBehaviour
         PendingTowerPrefab = null;
     }
 
+    // Replaces the current ghost prefab with a real tower placed down. Exits tower placement.
     private void PlaceTower()
     {
         if (!towerGhost) return;
@@ -87,6 +89,7 @@ public class TowerPlacer : MonoBehaviour
         Game.Instance.ExitTowerPlacement();
     }
 
+    // Spawns a visual of the tower you are pending to place, constantly following your cursor.
     private void SpawnGhost()
     {
         towerGhost = new GameObject();
@@ -108,24 +111,27 @@ public class TowerPlacer : MonoBehaviour
         towerGhostModel.transform.position = Vector3.zero;
     }
 
+    // Moves the ghost to your cursors location.
     private void MoveGhost(Vector3 pos)
     {
         if (towerGhost == null) return;
 
         pos = pos + (Vector3.up * (towerGhostModel.GetComponent<MeshRenderer>().bounds.size.y * 0.5f));
 
-        towerGhost.transform.position = Vector3.Lerp(towerGhost.transform.position,pos,ghostLerpSpeed);
+        towerGhost.transform.position = Vector3.Lerp(towerGhost.transform.position,pos, ghostLerpSpeed);
     }
 
+    // Destroys the pending ghost prefab.
     private void DestroyGhost()
     {
         GameObject.Destroy(towerGhost.gameObject);
     }
 
+    // Gets the position of where the mouse is, in world space.
     private bool GetMouseWorldPosition(out Vector3 result)
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray,out RaycastHit hit, Mathf.Infinity, groundLayer))
+        if (Physics.Raycast(ray,out RaycastHit hit, Mathf.Infinity))
         {
             result = hit.point;
             return true;
@@ -141,12 +147,14 @@ public class TowerPlacer : MonoBehaviour
         Gizmos.DrawRay(ray);
     }
 
+    // Checks if where the cursor currently is is a valid place for a tower.
     private bool CheckValidPlacement(Vector3 pos)
     {
         float radius = PendingTowerPrefab.transform.lossyScale.magnitude / 2;
         return !Physics.CheckSphere(pos, radius, enemyPathLayer) && Physics.CheckSphere(pos, radius, groundLayer);
     }
 
+    // Updates the ghost color to match the current placement validity.
     private void UpdateGhostColor()
     {
         if (!towerGhost) return;

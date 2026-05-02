@@ -74,11 +74,13 @@ public class Game : MonoBehaviour
         MaxRound = roundData.waves.Count;
     }
 
+    // Reloads the scene.
     public void ResetGame()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    // Deals damage to the player base.
     public void TakePlayerDamage(float amount)
     {
         PlayerHealth -= amount;
@@ -89,6 +91,7 @@ public class Game : MonoBehaviour
         }
     }
 
+    // Updates the money the player has, and checks if they lost or gained. (Deemed unecessary for the MVP)
     public void ChangePlayerMoney(int amount)
     {
         int oldPlayerMoney = PlayerMoney;
@@ -96,6 +99,7 @@ public class Game : MonoBehaviour
         OnPlayerMoneyChanged.Invoke(PlayerMoney,PlayerMoney > oldPlayerMoney);
     }
 
+    // Emits the tower placement started event so that other objects can update accordingly. Also enters the Placing Control State.
     public void EnterTowerPlacement(Tower tower)
     {
         if (gState != GameState.Preparation) { Debug.LogWarning("Unable to go into tower placement. Reason: Wrong game State"); return; }
@@ -103,12 +107,14 @@ public class Game : MonoBehaviour
         OnTowerPlacementStarted.Invoke(tower);
     }
 
+    // Emits the tower placement ended event so that other objects can update accordingly. Also exits the Placing Control State.
     public void ExitTowerPlacement()
     {
         OnTowerPlacementEnded.Invoke();
         cState = ControlState.Normal;
     }
 
+    // Emits the round started event so that other objects can update accordingly. Also enters the Engagement Game State.
     public void StartRound()
     {
         CurrentRound++;
@@ -116,6 +122,7 @@ public class Game : MonoBehaviour
         OnRoundStarted.Invoke();
     }
 
+    // Emits the round ended event so that other objects can update accordingly. Also enters the Preperation Game State. Also handles triggering the win/lose screen function.
     public void EndRound()
     {
         if (CurrentRound >= MaxRound)
@@ -129,6 +136,7 @@ public class Game : MonoBehaviour
         }
     }
 
+    // Handles the win/lose screen.
     public void WinLossScreen(bool win)
     {
         string[] messages = win ? WinMessages : LossMessages;
@@ -144,6 +152,7 @@ public class Game : MonoBehaviour
         }
     }
 
+    // Gets the current round info.
     public int2 GetRoundInfo()
     {
         return new int2(CurrentRound, MaxRound);

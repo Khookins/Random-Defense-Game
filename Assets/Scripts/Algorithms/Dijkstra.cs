@@ -15,16 +15,19 @@ namespace Pathfinding
             }
         }
 
+        // Sets a member variable to all active path nodes in the scene.
         public void GetAllNodes()
         {
             nodesInScene = FindObjectsByType<Node>(FindObjectsSortMode.None);
         }
 
+        // Similarly to GetAllNodes, Sets the member variable to all towers in the scene.
         public void GetAllDefenses()
         {
             defensesInScene = FindObjectsByType<Defence>(FindObjectsSortMode.None);
         }
 
+        // Get all the towers that are in the effecting range of a path.
         public List<Defence> GetAllDefensesAffectingPath(Node a, Node b = null)
         {
             List<Defence> results = new List<Defence>();
@@ -38,16 +41,16 @@ namespace Pathfinding
             return results;
         }
 
+        // Used in initial development to draw the path between the nodes to the end using gizmos.
         public void DebugPath(List<Node> path)
         {
             for (int i = 0; i < path.Count - 1; i++)
             {
-                Debug.DrawLine(path[i].transform.position + Vector3.up * 0.01f,
-                                path[i + 1].transform.position + Vector3.up * 0.01f,
-                                Color.red, 10f);
+                Debug.DrawLine(path[i].transform.position + Vector3.up * 0.01f, path[i + 1].transform.position + Vector3.up * 0.01f, Color.red, 10f);
             }
         }
 
+        // Finds the shortest path between a start and end node.
         public List<Node> FindShortestPath(Node start, Node goal)
         {
             if (RunAlgorithm(start, goal))
@@ -64,6 +67,7 @@ namespace Pathfinding
             return null;
         }
 
+        // Runs the Dijkstra pathfinding algorithm.
         protected virtual bool RunAlgorithm(Node start, Node goal)
         {
             List<Node> unexplored = new List<Node>();
@@ -84,10 +88,15 @@ namespace Pathfinding
                     // Ensure that we havn't explored the neighbour
                     if (!unexplored.Contains(neighbourNode)) continue;
 
-                    float neighbourWeight = Vector3.Distance(current.transform.position,
-                                                       neighbourNode.transform.position);
+                    float neighbourWeight = Vector3.Distance(current.transform.position, neighbourNode.transform.position);
 
                     neighbourWeight += current.PathWeight;
+
+                    // Update the node weight based on nearby towers impact.
+                    foreach (Defence defense in GetAllDefensesAffectingPath(current, neighbourNode))
+                    {
+                        neighbourWeight += defense.GetWeightPenalty(current, neighbourNode);
+                    }
 
                     if (neighbourWeight < neighbourNode.PathWeight)
                     {
@@ -101,6 +110,7 @@ namespace Pathfinding
             return false; // if we don't find the end node
         }
 
+        // Sets up all the nodes in an unexplored state.
         public void SetUnexplored(List<Node> unexplored)
         {
             foreach (var node in nodesInScene)

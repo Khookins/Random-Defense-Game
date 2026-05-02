@@ -1,6 +1,7 @@
 using Unity.Mathematics;
 using UnityEngine;
 
+// Handles the players heads up display. Usually responds to events. 
 public class HUD : MonoBehaviour
 {
     // Singleton

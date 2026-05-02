@@ -1,12 +1,14 @@
-using UnityEngine;
+using System.Collections;
 using Pathfinding;
-using System;
+using UnityEngine;
 
 public class Tower : Defence
 {
     [SerializeField] protected float AttackDamage = 0f;
     [SerializeField] protected float AttackInterval = 0f;
+    [SerializeField] protected float AttackLength = 0f;
     [SerializeField] protected float AttackRange = 0f;
+    [SerializeField] protected GameObject AttackVisual;
     [SerializeField] protected TargetingMode targetingMode = TargetingMode.First;
     private float cooldown = 0f;
     private Vector3 lastAttackedPoint = Vector3.zero;
@@ -32,6 +34,7 @@ public class Tower : Defence
         }
     }
 
+    // Used by nodes to check if a tower is in range of their path.
     public override bool AffectsWeight(Node a, Node b)
     {
         Vector2 center = new Vector2(transform.position.x, transform.position.z);
@@ -47,16 +50,19 @@ public class Tower : Defence
         return (closest - center).sqrMagnitude <= AttackRange * AttackRange;
     }
 
+    // Gets the penalty to apply on nodes for being in range.
     public override float GetWeightPenalty(Node a, Node b = null)
     {
         return baseWeightPenalty;
     }
 
+    // Gets the towers range.
     public float GetRange()
     {
         return AttackRange;
     }
 
+    // Checks if an enemy is in range of the tower to attack.
     protected virtual bool EnemyInRange(Enemy enemy)
     {
         Vector2 center = new Vector2(transform.position.x, transform.position.z);
@@ -66,6 +72,7 @@ public class Tower : Defence
         return distance <= AttackRange;
     }
 
+    // Attacks an enemy when within range and attack isn't on cooldown.
     protected virtual bool Attack()
     {
         Enemy[] enemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
@@ -73,10 +80,37 @@ public class Tower : Defence
         {
             if (!EnemyInRange(enemy)) continue;
             enemy.TakeDamage(AttackDamage);
+            StartCoroutine(VisualizeAttack(enemy.transform.position));
             lastAttackedPoint = enemy.transform.position;
             return true;
         }
         return false;
+    }
+
+    // Creates a bullet visual to show when a tower attacks an enemy.
+    protected virtual IEnumerator VisualizeAttack(Vector3 enemyPosition)
+    {
+        if (AttackLength <= 0f || AttackVisual == null) yield return null;
+        Vector3 midVector = (transform.position + enemyPosition) * 0.5f;
+        Vector3 direction = (transform.position - enemyPosition);
+        float distance = direction.magnitude;
+        Quaternion rotation = Quaternion.LookRotation(direction, transform.up);
+
+        GameObject bullet = GameObject.Instantiate(AttackVisual, midVector, rotation);
+        bullet.transform.localScale = new Vector3(1f, 1f, distance);
+
+        float elapsed = 0f;
+        while (elapsed < AttackLength)
+        {
+            elapsed += Time.deltaTime;
+            float time = elapsed / AttackLength;
+
+            bullet.transform.localScale = Vector3.Lerp(bullet.transform.localScale, new Vector3(0,0, distance), time);
+
+            yield return null;
+        }
+
+        GameObject.Destroy(bullet);
     }
 }
 

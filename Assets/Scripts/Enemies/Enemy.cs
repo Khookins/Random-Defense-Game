@@ -17,11 +17,13 @@ public abstract class Enemy : MonoBehaviour
         CurrentHealth = MaxHealth;
     }
 
+    // Gets the enemy's current health
     public float GetHealth()
     {
         return CurrentHealth;
     }
 
+    // Deals damage to the enemy, if the enemies health goes to zero or lower, it will call the Die function.
     public virtual void TakeDamage(float damage)
     {
         CurrentHealth -= (damage * DamageMultiplier);
@@ -31,6 +33,7 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
+    // What the enemy will do when it dies.
     protected virtual void Die()
     {
         if (this == null) return;

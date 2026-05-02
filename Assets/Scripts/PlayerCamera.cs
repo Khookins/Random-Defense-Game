@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Handles the player camera, allows the player to move and look around similarly to the unity scene camera.
 public class PlayerCamera : MonoBehaviour
 {
     [Header("Look")]

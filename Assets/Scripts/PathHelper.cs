@@ -1,11 +1,13 @@
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
+// Visualizes the path that the enemies will take during engagement phase.
 namespace Pathfinding
 {
     public class PathHelper : FollowPath
     {
         private ParticleSystem particle;
+        private EnemySpawner spawner;
+        private PathfindingAlgorithm algorithm = PathfindingAlgorithm.A_Star;
 
         private void OnEnable()
         {
@@ -15,6 +17,7 @@ namespace Pathfinding
         private void OnDisable()
         {
             Game.OnGameStateChanged -= ToggleVisibility;
+            spawner.OnAlgorithmChanged -= SetAlgorithm;
         }
         private void Awake()
         {
@@ -23,6 +26,9 @@ namespace Pathfinding
 
         private void Start()
         {
+            spawner = Game.Instance.GetComponent<EnemySpawner>();
+            spawner.OnAlgorithmChanged += SetAlgorithm;
+
             SetPath(startNode, goalNode);
         }
 

@@ -5,6 +5,7 @@ namespace Pathfinding
 {
     public class AStar : Dijkstra
     {
+        // Modification of the Inherited Dijkstra algorithm, Runs the AStar algorithm.
         protected override bool RunAlgorithm(Node start, Node goal)
         {
             List<Node> unexplored = new List<Node>();
@@ -25,8 +26,10 @@ namespace Pathfinding
                     // Ensure that we haven't explored the neighbour
                     if (!unexplored.Contains(neighbourNode)) continue;
 
+                    // Apply the heuristic weight, which is the weight based on the distance from the end.
                     neighbourNode.SetHeuristic(eNode.transform.position);
 
+                    // Update the node weight based on nearby towers impact.
                     float neighbourWeight = Vector3.Distance(current.transform.position, neighbourNode.transform.position);
                     foreach (Defence defense in GetAllDefensesAffectingPath(current, neighbourNode))
                     {
